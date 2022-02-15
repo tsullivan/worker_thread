@@ -18,7 +18,6 @@ const allocateMemory = async () => {
 (async function run() {
   const memoryLeak = [];
   for (;;) /* a computer crying */ {
-
     memoryLeak.push(await allocateMemory());
   }
 })();
