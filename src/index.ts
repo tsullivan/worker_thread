@@ -40,7 +40,6 @@ function hello(): Promise<string> {
       if (error) {
         reject(error);
       }
-
       resolve(data);
     });
   });
@@ -48,21 +47,12 @@ function hello(): Promise<string> {
 
 Promise.resolve()
   .then(hello)
-  .then(async message => {
+  .then(message => {
     console.log(message);
   })
   .catch(error => {
     console.error(error);
   })
-  .finally(async () => {
+  .finally(() => {
     worker.terminate();
   });
-
-setInterval(() => {
-  const { rss, heapTotal, heapUsed, external, arrayBuffers } = process.memoryUsage();
-  console.log({ rss, heapTotal, heapUsed, external, arrayBuffers, threads: rss - heapTotal });
-}, 100);
-
-setTimeout(() => {
-  process.exit();
-}, 10000);

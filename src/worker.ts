@@ -2,13 +2,13 @@ import { parentPort, isMainThread, resourceLimits } from 'worker_threads';
 import { WorkerRequest, WorkerResponse } from '.';
 
 if (!isMainThread) {
-  parentPort!.on('message', doWork);
+  parentPort!.on('message', innerWorker);
 }
 
 // Give Node.js a chance to move the memory to the old generation region
 const WAIT = 40;
 
-function doWork({ data, port }: WorkerRequest): WorkerResponse {
+function innerWorker({ data, port }: WorkerRequest): WorkerResponse {
   const allocateMemory = async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -21,22 +21,22 @@ function doWork({ data, port }: WorkerRequest): WorkerResponse {
     });
   };
 
-  (async function run() {
-    const memoryLeak = [];
-    for (;;) /* a computer crying */ {
+//   (async function run() {
+//     const memoryLeak = [];
+//     for (;;) /* a computer crying */ {
+// 
+//       memoryLeak.push(await allocateMemory());
+//     }
+//   })();
 
-      memoryLeak.push(await allocateMemory());
-    }
-  })();
-
-  const randomError = Math.random() * 10 > 8 ? 'RANDOM ERROR' : undefined;
+  const randomError = Math.random() * 10 >= 9 ? 'RANDOM ERROR' : undefined;
 
   if (randomError) {
     throw new Error(randomError);
   }
 
   const workerResponse: WorkerResponse = {
-    data: `your message back from the worker: ${data}`,
+    data: `Your message back from the worker: ${data}`,
     error: randomError,
   };
 
