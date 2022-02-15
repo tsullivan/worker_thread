@@ -2,7 +2,6 @@ import * as path from 'path';
 import {
   MessageChannel,
   MessagePort,
-  // ResourceLimits,
   Worker,
 } from 'worker_threads';
 
@@ -19,8 +18,9 @@ export interface WorkerResponse {
 const { port1: myPort, port2: theirPort } = new MessageChannel();
 const workerPath = path.resolve(process.cwd(), 'dist', 'worker.js');
 
-// const resourceLimits: ResourceLimits = {};
-const worker = new Worker(workerPath /*, { resourceLimits } */);
+const worker = new Worker(workerPath, {
+  resourceLimits: { maxOldGenerationSizeMb: 16 },
+});
 
 function hello(): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -59,5 +59,10 @@ Promise.resolve()
   });
 
 setInterval(() => {
-  console.log(JSON.stringify(process.memoryUsage()));
+  const { rss, heapTotal, heapUsed, external, arrayBuffers } = process.memoryUsage();
+  console.log({ rss, heapTotal, heapUsed, external, arrayBuffers, threads: rss - heapTotal });
 }, 100);
+
+setTimeout(() => {
+  process.exit();
+}, 10000);

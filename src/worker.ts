@@ -5,11 +5,10 @@ if (!isMainThread) {
   parentPort!.on('message', doWork);
 }
 
-
 // Give Node.js a chance to move the memory to the old generation region
 const WAIT = 40;
 
-export function doWork({ data, port }: WorkerRequest): void {
+function doWork({ data, port }: WorkerRequest): WorkerResponse {
   const allocateMemory = async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -22,16 +21,25 @@ export function doWork({ data, port }: WorkerRequest): void {
     });
   };
 
+  (async function run() {
+    const memoryLeak = [];
+    for (;;) /* a computer crying */ {
+
+      memoryLeak.push(await allocateMemory());
+    }
+  })();
+
   const randomError = Math.random() * 10 > 8 ? 'RANDOM ERROR' : undefined;
 
   if (randomError) {
     throw new Error(randomError);
   }
 
-  const response: WorkerResponse = {
+  const workerResponse: WorkerResponse = {
     data: `your message back from the worker: ${data}`,
     error: randomError,
   };
 
-  port.postMessage(response);
+  port.postMessage(workerResponse);
+  return workerResponse;
 }
