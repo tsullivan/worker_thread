@@ -16,9 +16,8 @@ export interface WorkerResponse {
 }
 
 const { port1: myPort, port2: theirPort } = new MessageChannel();
-const workerPath = path.resolve(process.cwd(), 'dist', 'worker.js');
 
-const worker = new Worker(workerPath, {
+const worker = new Worker('./worker.js', {
   resourceLimits: { maxOldGenerationSizeMb: 16 },
 });
 
@@ -52,6 +51,9 @@ Promise.resolve()
   })
   .catch(error => {
     console.error(error);
+  })
+  .then(() => {
+    console.log('i am the parent and i am OK')
   })
   .finally(() => {
     worker.terminate();
