@@ -1,5 +1,10 @@
 import * as path from 'path';
-import { MessageChannel, MessagePort, Worker } from 'worker_threads';
+import {
+  MessageChannel,
+  MessagePort,
+  // ResourceLimits,
+  Worker,
+} from 'worker_threads';
 
 export interface WorkerRequest {
   port: MessagePort;
@@ -11,11 +16,13 @@ export interface WorkerResponse {
   data: string;
 }
 
-function hello(): Promise<string> {
-  const { port1: myPort, port2: theirPort } = new MessageChannel();
-  const workerPath = path.resolve(process.cwd(), 'dist', 'worker.js');
-  const worker = new Worker(workerPath);
+const { port1: myPort, port2: theirPort } = new MessageChannel();
+const workerPath = path.resolve(process.cwd(), 'dist', 'worker.js');
 
+// const resourceLimits: ResourceLimits = {};
+const worker = new Worker(workerPath /*, { resourceLimits } */);
+
+function hello(): Promise<string> {
   return new Promise((resolve, reject) => {
     worker.on('error', (workerError) => {
       reject(workerError);
@@ -24,7 +31,7 @@ function hello(): Promise<string> {
     // Send the initial request
     const generatePdfRequest: WorkerRequest = {
       port: theirPort,
-      data: `I was a teenage werewolf!`,
+      data: `This test is the best!`,
     };
     worker.postMessage(generatePdfRequest, [theirPort]);
 
@@ -35,10 +42,22 @@ function hello(): Promise<string> {
       }
 
       resolve(data);
-      worker.terminate();
     });
-
   });
 }
 
-hello();
+Promise.resolve()
+  .then(hello)
+  .then(async message => {
+    console.log(message);
+  })
+  .catch(error => {
+    console.error(error);
+  })
+  .finally(async () => {
+    worker.terminate();
+  });
+
+setInterval(() => {
+  console.log(JSON.stringify(process.memoryUsage()));
+}, 100);
