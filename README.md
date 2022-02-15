@@ -6,9 +6,8 @@ Steps to run this project.
 1. Run `npm install`
 2. `npm run build`
 3. `docker build . -t worker_threads` or give it whatever name you want
-4. `docker build . -t worker_threads` or give it whatever name you want
-5. `docker run -it --memory=1gb --memory-swap=2gb --mount type=bind,source=$(pwd)/dist,target=//usr/src/app/dist worker_threads`
-6. Inside Docker container: `node ./index.js`
+4. `docker run -it --memory=1gb --memory-swap=2gb --mount type=bind,source=$(pwd)/dist,target=//usr/src/app/dist worker_threads`
+5. Inside Docker container: `node ./index.js`
 
 You should reliably see the following:
 
